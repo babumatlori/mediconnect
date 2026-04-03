@@ -1,0 +1,28 @@
+# Maven
+target/
+*.class
+*.jar
+*.war
+
+# Environment variables - NEVER commit passwords
+.env
+*.env
+
+# Intellij
+.idea
+*.iml
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# Node (React frontend)
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+logs/
