@@ -9,6 +9,7 @@ spring:
 eureka:
   instance:
     hostname: localhost
+    prefer-ip-address: true
   client:
 #    this server dosent register with itself
     register-with-eureka: false
@@ -16,7 +17,7 @@ eureka:
     service-url:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
     server:
-      wait-time-in-ms-when-synx-empty: 0
+      wait-time-in-ms-when-sync-empty: 0
 #      for local dev, avouds confusing warings
       enable-self-preservation: false
 

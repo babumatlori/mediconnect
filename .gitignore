@@ -18,7 +18,7 @@ target/
 # Mac
 .DS_Store
 
-# Node (React frontend)
+#Node (React frontend)
 node_modules/
 dist/
 build/
