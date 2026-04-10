@@ -1,0 +1,19 @@
+package com.mediconnect.user_service.entity;
+
+public enum Specialization {
+    GENERAL_PHYSICIAN,
+    CARDIOLOGIST,
+    DERMATOLOGIST,
+    NEUROLOGIST,
+    ORTHOPEDIST,
+    PEDIATRICIAN,
+    PSYCHIATRIST,
+    GYNECOLOGIST,
+    OPHTHALMOLOGIST,
+    ENT_SPECIALIST,
+    DENTIST,
+    RADIOLOGIST,
+    ONCOLOGIST,
+    UROLOGIST,
+    ENDOCRINOLOGIST
+}
