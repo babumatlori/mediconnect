@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AppointmentService {
 
+    private final RedisPublisher redisPublisher;
     private final AppointmentRepository appointmentRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -95,6 +96,16 @@ public class AppointmentService {
 
         Appointment saved = appointmentRepository
                 .save(appointment);
+
+//        Publish notification to patient
+        redisPublisher.publishNotification(
+                request.getPatientId(),
+                "BOOKING_CONFIRMED",
+                "Appointment Confirmed!",
+                "Your appointment on " + request.getAppointmentDate()
+                + " at " + request.getStartTime()
+                + " has been confirmed."
+        );
 
         log.info("Appointment booked: ID={}, Doctor={}, " +
                         "Patient={}, Date={}",
