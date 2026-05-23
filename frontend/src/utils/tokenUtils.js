@@ -44,7 +44,7 @@ export const decodeToken = (token) => {
 export const isTokenExpired = (token) => {
     const decoded = decodeToken(token);
     if(!decoded || !decoded.exp) return true;
-    return decoded.exp * 1000 < Date.name();
+    return decoded.exp * 1000 < Date.now();
 };
 
 // clear all auth data
