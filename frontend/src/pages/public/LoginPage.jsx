@@ -90,7 +90,7 @@ export default function LoginPage() {
   } catch (error) {
 
     setError('root', {
-      message: 'Something went wrong',
+      message: 'Something went wrong' + error,
     });
   }
 };

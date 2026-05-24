@@ -10,7 +10,7 @@ export const appointmentApi = {
     getDoctorAppointments:
         (doctorId) => api.get(`/api/appointments/doctor/${doctorId}`),
     cancel:
-        (id) => api.delete(`/api/appointments/${id}/cancel`),
+        (id) => api.put(`/api/appointments/${id}/cancel`),
     complete:
         (id, notes) => api.put(`/api/appointments/${id}/complete?notes=${notes || ''}`),
 };

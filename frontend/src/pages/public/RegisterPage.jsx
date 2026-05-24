@@ -10,7 +10,7 @@ import Button from '../../components/ui/Button';
 import { useToast } from '../../hooks/useToast';
 import { useAuth } from '../../hooks/useAuth';
 import { authApi } from '../../api/authApi';
-import { ROLES, SPECIALIZTIONS } from '../../utils/constants';
+import { ROLES, SPECIALIZATIONS } from '../../utils/constants';
 import { cn } from '../../utils/cn';
 
 /**
@@ -232,7 +232,7 @@ export default function RegisterPage() {
               )}
             >
               <option value="">Select your specialization</option>
-              {SPECIALIZTIONS.map((spec) => (
+              {SPECIALIZATIONS.map((spec) => (
                 <option key={spec.value} value={spec.value}>
                   {spec.label}
                 </option>

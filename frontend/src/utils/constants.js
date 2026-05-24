@@ -31,7 +31,7 @@ export const URGENCY = {
 }
 
 // Medical specializations - match backend enum exactly
-export const SPECIALIZTIONS = [
+export const SPECIALIZATIONS = [
     { value: 'GENERAL_PHYSICIAN', label: 'General Physician' },
     { value: 'CARDIOLOGIST', label: 'Cardiologist' },
     { value: 'DERMATOLOGIST',      label: 'Dermatologist' },

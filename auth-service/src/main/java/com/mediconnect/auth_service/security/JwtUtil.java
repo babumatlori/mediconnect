@@ -24,9 +24,12 @@ public class JwtUtil {
     private long refreshExpiration;
 
     // ── Generate Access Token ──────────────────────────
-    public String generateAccessToken(String email, String role) {
+    public String generateAccessToken(Long userId, String email, String role) {
         Map<String, Object> claims = new HashMap<>();
+
+        claims.put("userId", userId);
         claims.put("role", role);
+
         return buildToken(claims, email, jwtExpiration);
     }
 

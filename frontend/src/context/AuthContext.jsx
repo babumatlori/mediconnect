@@ -21,36 +21,41 @@ export function AuthProvider({ children }) {
   });
   const [loading, setLoading] = useState(false);
 
-  const login = useCallback(async (email, password) => {
-    setLoading(true);
-    try {
-      const res = await authApi.login({ email, password });
-      const { accessToken, refreshToken, role } = res.data;
+const login = useCallback(async (email, password) => {
+  setLoading(true);
 
-      const decoded = decodeToken(accessToken);
-      const userData = {
-        id:    decoded?.userId || decoded?.sub,
-        email: res.data.email,
-        role,
-      };
+  try {
+    const res = await authApi.login({ email, password });
 
-      saveTokens(accessToken, refreshToken);
-      saveUser(userData);
-      setUser(userData);
-      setIsAuth(true);
+    const { accessToken, refreshToken, role } = res.data;
 
-      return { success: true, role };
-    } catch (error) {
-      return {
-        success: false,
-        message:
-          error.response?.data?.message ||
-          'Invalid email or password',
-      };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const decoded = decodeToken(accessToken);
+
+    const userData = {
+      id: decoded?.userId,
+      email: res.data.email,
+      role,
+    };
+
+    saveTokens(accessToken, refreshToken);
+    saveUser(userData);
+
+    setUser(userData);
+    setIsAuth(true);
+
+    return { success: true, role };
+
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error.response?.data?.message ||
+        'Invalid email or password',
+    };
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   const logout = useCallback(() => {
     clearAuth();

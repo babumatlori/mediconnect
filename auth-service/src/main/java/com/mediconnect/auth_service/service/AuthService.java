@@ -49,7 +49,10 @@ public class AuthService {
 
         // Generate tokens
         String accessToken = jwtUtil.generateAccessToken(
-                user.getEmail(), user.getRole().name());
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name()
+        );
         String refreshToken = jwtUtil.generateRefreshToken(
                 user.getEmail());
 
@@ -84,7 +87,10 @@ public class AuthService {
 
         // Generate tokens
         String accessToken = jwtUtil.generateAccessToken(
-                user.getEmail(), user.getRole().name());
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name()
+        );
         String refreshToken = jwtUtil.generateRefreshToken(
                 user.getEmail());
 
@@ -120,7 +126,7 @@ public class AuthService {
 
         User user = stored.getUser();
         String newAccessToken = jwtUtil.generateAccessToken(
-                user.getEmail(), user.getRole().name());
+                user.getId(),user.getEmail(), user.getRole().name());
 
         return AuthResponse.builder()
                 .accessToken(newAccessToken)

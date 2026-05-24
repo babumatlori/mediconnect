@@ -1,4 +1,4 @@
-import {format, formatDistanceToNow, isToday, isTomorrow,date } from "date-fns";
+import {format, formatDistanceToNow, isToday, isTomorrow } from "date-fns";
 
 // format a date string for display in appointment cards (i = 2026-05-15, o = May 15, 2026)
 export const formatDate = (dateString) => {
@@ -13,15 +13,21 @@ export const formatDate = (dateString) => {
 
 export const formatTime = (timeString) => {
     try {
-        const [hours, minutes] = timeString.split(":");
-        const data = new Date();
-        data.setHours(parseInt(hours), parseInt(minutes));
-        return format(date, 'h:mm a')
+        if (!timeString) return '';
+
+        const parts = timeString.split(':');
+
+        const hours = parseInt(parts[0]);
+        const minutes = parseInt(parts[1]);
+
+        const date = new Date();
+        date.setHours(hours, minutes);
+
+        return format(date, 'h:mm a');
     } catch {
         return timeString;
     }
 };
-
 // smart data label - shows "TOdays, Tommorow",or the date.
 
 export const smartDate = (dateString) => {
@@ -35,7 +41,7 @@ export const smartDate = (dateString) => {
     }
 };
 
-// Relative time - "2 hours age", "3 days a ago"
+// Relative time - "2 hours age", "3 days  ago"
 
 export const timeAgo = (dateString) => {
     try {
