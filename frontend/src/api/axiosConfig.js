@@ -6,10 +6,10 @@ import {
     clearAuth,
 } from '../utils/tokenUtils';
 export const api = axios.create({
-    baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/',
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/',
     timeout: 30000, //30 sec
     headers: {
-        'Content_type': 'application/json',
+        'Content-Type': 'application/json',
     },
 });
 

@@ -23,7 +23,7 @@ const ICON_MAP = {
 
 export default function Sidebar({ isOpen, onClose }) {
     const { user, logout } = useAuth();
-    const { showSucsess }  = useToast();
+    const { showSuccess }  = useToast();
     const navigate         = useNavigate();
 
     // Get nav links based on user role
@@ -31,7 +31,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
     const handleLogout = () => {
         logout();
-        showSucsess('Logged out successfully');
+        showSuccess('Logged out successfully');
         navigate('/login');
     };
 
@@ -138,12 +138,12 @@ export default function Sidebar({ isOpen, onClose }) {
                 {/* logout button */}
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 py-2.5 rounded-md
-                    text-sm font-medium text-secondary-400 hover:bg-danger-500/10 transition-all duration-150"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md
+                    text-sm font-medium text-secondary-400 hover:bg-danger-500/10
+                    hover:text-danger-400 transition-all duration-150"
                 >
-                    <LogOut size={18} className="shrink-0">
-                        <span>Logout</span>
-                    </LogOut>
+                    <LogOut size={18} className="shrink-0" />
+                    <span>Logout</span>
                 </button>
                 </div>
                 </aside>

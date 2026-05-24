@@ -34,7 +34,7 @@ public class AuthService {
         // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException(
-                    "Email already registered: " + request.getEmail());
+                    "Email already registered. Please login instead. ");
         }
 
         // Create and save user
@@ -80,7 +80,7 @@ public class AuthService {
         // Get user
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                        new RuntimeException("Wrong Email or password, please try again"));
 
         // Generate tokens
         String accessToken = jwtUtil.generateAccessToken(
