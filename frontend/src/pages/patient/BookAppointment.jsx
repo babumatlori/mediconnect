@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
@@ -68,6 +68,7 @@ export default function BookAppointment() {
   const { user }           = useAuth();
   const { showSuccess, showError } = useToast();
   const navigate           = useNavigate();
+  const location = useLocation();
 
   const [currentStep, setCurrentStep]         = useState(1);
   const [doctors, setDoctors]                 = useState([]);
@@ -75,7 +76,9 @@ export default function BookAppointment() {
   const [slots, setSlots]                     = useState([]);
   const [loadingSlots, setLoadingSlots]       = useState(false);
   const [booking, setBooking]                 = useState(false);
-  const [filterSpec, setFilterSpec]           = useState('');
+  const [filterSpec, setFilterSpec]           = useState(
+    () => new URLSearchParams(location.search).get('specialization') || ''
+  );
   const [searchTerm, setSearchTerm]           = useState('');
 
   // Booking state

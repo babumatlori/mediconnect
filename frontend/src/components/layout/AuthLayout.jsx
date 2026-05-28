@@ -3,20 +3,7 @@ import { Link } from 'react-router-dom';
 
 /**
  * AuthLayout — wrapper for Login and Register pages.
- *
- * Structure:
- * ┌─────────────────────────────────────────┐
- * │ Full screen gradient background         │
- * │                                         │
- * │         ┌─────────────────┐             │
- * │         │  Logo           │             │
- * │         │  Title          │             │
- * │         │                 │             │
- * │         │  {children}     │             │
- * │         │  (form goes here│             │
- * │         └─────────────────┘             │
- * └─────────────────────────────────────────┘
- *
+ 
  * Props:
  * - title: string — "Sign in to your account"
  * - subtitle: string — "Don't have an account? Register"

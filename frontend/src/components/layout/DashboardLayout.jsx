@@ -2,22 +2,12 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopNavbar from './TopNavbar';
+import AIChatWidget from '../ai/AIChatWidget';
 // import { cn } from '../../utils/cn';
 
 /**
  * DashboardLayout — wraps all authenticated pages.
- *
- * Structure:
- * ┌──────────────────────────────────────┐
- * │ Sidebar (fixed left, w-60)           │
- * │ ┌────────────────────────────────┐   │
- * │ │ TopNavbar (h-16)               │   │
- * │ ├────────────────────────────────┤   │
- * │ │ Page Content (scrollable)      │   │
- * │ │   <Outlet /> renders here      │   │
- * │ └────────────────────────────────┘   │
- * └──────────────────────────────────────┘
- *
+
  * WHY h-screen overflow-hidden on outer div:
  * Makes the layout fill exactly the viewport height.
  * overflow-hidden prevents double scrollbars.
@@ -80,6 +70,9 @@ export default function DashboardLayout() {
           <Outlet />
 
         </main>
+
+        {/* AI Chat Widget — floating, only shows for PATIENT */}
+      <AIChatWidget />  {/* ← ADD */}
 
          {/* Footer */}
     <footer className="border-t bg-white px-6 py-4 text-center text-sm text-secondary-500">

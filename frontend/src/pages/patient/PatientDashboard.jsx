@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Calendar, CalendarPlus, Stethoscope,
@@ -22,23 +22,27 @@ export default function PatientDashboard() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading]           = useState(true);
 
-  const loadAppointments = async () => {
-    setLoading(true);
-    try {
-      const res = await appointmentApi.getPatientAppointments(user.id);
-      setAppointments(res.data || []);
-    } catch {
-      showError('Failed to load appointments');
-    } finally {
-      setLoading(false);
-    }
-  };
+// ── CORRECT ORDER ──────────────────────────────
 
-  // Load patient appointments on mount
-  useEffect(() => {
-    if (!user?.id) return;
-    loadAppointments();
-  }, [user]);
+// 1. Define the function FIRST
+const loadAppointments = useCallback(async () => {
+  if (!user?.id) return;
+  setLoading(true);
+  try {
+    const res = await appointmentApi
+        .getPatientAppointments(user.id);
+    setAppointments(res.data || []);
+  } catch {
+    showError('Failed to load appointments');
+  } finally {
+    setLoading(false);
+  }
+}, [user, showError]);
+
+// 2. Then use it in useEffect
+useEffect(() => {
+  loadAppointments();
+}, [loadAppointments]);
 
   // Cancel appointment handler
   const handleCancel = async (id) => {

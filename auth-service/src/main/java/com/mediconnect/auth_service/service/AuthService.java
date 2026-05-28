@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -94,8 +95,12 @@ public class AuthService {
         String refreshToken = jwtUtil.generateRefreshToken(
                 user.getEmail());
 
-        // Delete old refresh tokens and save new one
-        refreshTokenRepository.deleteByUser(user);
+        List<RefreshToken> existing = refreshTokenRepository
+                .findAllByUser(user);
+        if (!existing.isEmpty()) {
+            refreshTokenRepository.deleteAll(existing);
+            refreshTokenRepository.flush(); // ← KEY FIX
+        }
         saveRefreshToken(user, refreshToken);
 
         return AuthResponse.builder()
