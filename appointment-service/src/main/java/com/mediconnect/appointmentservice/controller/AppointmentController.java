@@ -1,6 +1,7 @@
 package com.mediconnect.appointmentservice.controller;
 
 import com.mediconnect.appointmentservice.dto.AppointmentResponse;
+import com.mediconnect.appointmentservice.dto.AvailabilityRequest;
 import com.mediconnect.appointmentservice.dto.BookingRequest;
 import com.mediconnect.appointmentservice.service.AppointmentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -86,5 +87,22 @@ public class AppointmentController {
     public ResponseEntity<String> health() {
         return ResponseEntity.ok(
                 "Appointment Service is running!");
+    }
+
+    @PostMapping("/availability/{doctorId}")
+    @Operation(summary = "Save doctor availability schedule")
+    public ResponseEntity<String> saveAvailability(
+            @PathVariable Long doctorId,
+            @RequestBody AvailabilityRequest request) {
+        appointmentService.saveAvailability(doctorId, request);
+        return ResponseEntity.ok("Availability saved successfully.");
+    }
+
+    @GetMapping("/availability/{doctorId}")
+    @Operation(summary = "Get doctor availability schedule")
+    public ResponseEntity<?> getAvailability(
+            @PathVariable Long doctorId) {
+        return ResponseEntity.ok(
+                appointmentService.getAvailability(doctorId));
     }
 }

@@ -13,4 +13,8 @@ export const appointmentApi = {
         (id) => api.put(`/api/appointments/${id}/cancel`),
     complete:
         (id, notes) => api.put(`/api/appointments/${id}/complete?notes=${notes || ''}`),
+    saveAvailability: (doctorId, data) =>
+        api.post(`/api/appointments/availability/${doctorId}`, data),
+    getAvailability: (doctorId) =>
+        api.get(`/api/appointments/availability/${doctorId}`),
 };
