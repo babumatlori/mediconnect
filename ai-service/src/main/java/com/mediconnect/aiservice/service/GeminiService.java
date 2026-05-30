@@ -43,10 +43,18 @@ public class GeminiService {
             // Call Gemini API
             String response = webClient.post()
                     .uri(apiUrl + "?key=" + apiKey)
-                    .header("Content-Type",
-                            "application/json")
+                    .header("Content-Type", "application/json")
                     .bodyValue(requestBody)
                     .retrieve()
+                    .onStatus(
+                            status -> status.isError(),
+                            clientResponse ->
+                                    clientResponse.bodyToMono(String.class)
+                                            .map(errorBody -> {
+                                                log.error("Gemini API Error Body: {}", errorBody);
+                                                return new RuntimeException(errorBody);
+                                            })
+                    )
                     .bodyToMono(String.class)
                     .block();
 
@@ -66,10 +74,12 @@ public class GeminiService {
             return text;
 
         } catch (Exception e) {
-            log.error("Gemini API call failed: {}",
-                    e.getMessage());
+//            e.printStackTrace();
+            log.error("Gemini API call failed", e);
+
             throw new RuntimeException(
-                    "AI service temporarily unavailable");
+                    "AI service temporarily unavailable: " + e.getMessage()
+            );
         }
     }
 }

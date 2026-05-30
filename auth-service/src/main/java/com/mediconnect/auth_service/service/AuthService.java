@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +35,7 @@ public class AuthService {
         // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException(
-                    "Email already registered: " + request.getEmail());
+                    "Email already registered. Please login instead. ");
         }
 
         // Create and save user
@@ -49,7 +50,10 @@ public class AuthService {
 
         // Generate tokens
         String accessToken = jwtUtil.generateAccessToken(
-                user.getEmail(), user.getRole().name());
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name()
+        );
         String refreshToken = jwtUtil.generateRefreshToken(
                 user.getEmail());
 
@@ -80,16 +84,23 @@ public class AuthService {
         // Get user
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                        new RuntimeException("Wrong Email or password, please try again"));
 
         // Generate tokens
         String accessToken = jwtUtil.generateAccessToken(
-                user.getEmail(), user.getRole().name());
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name()
+        );
         String refreshToken = jwtUtil.generateRefreshToken(
                 user.getEmail());
 
-        // Delete old refresh tokens and save new one
-        refreshTokenRepository.deleteByUser(user);
+        List<RefreshToken> existing = refreshTokenRepository
+                .findAllByUser(user);
+        if (!existing.isEmpty()) {
+            refreshTokenRepository.deleteAll(existing);
+            refreshTokenRepository.flush(); // ← KEY FIX
+        }
         saveRefreshToken(user, refreshToken);
 
         return AuthResponse.builder()
@@ -120,7 +131,7 @@ public class AuthService {
 
         User user = stored.getUser();
         String newAccessToken = jwtUtil.generateAccessToken(
-                user.getEmail(), user.getRole().name());
+                user.getId(),user.getEmail(), user.getRole().name());
 
         return AuthResponse.builder()
                 .accessToken(newAccessToken)

@@ -1,12 +1,15 @@
 package com.mediconnect.appointmentservice.service;
 
 import com.mediconnect.appointmentservice.dto.AppointmentResponse;
+import com.mediconnect.appointmentservice.dto.AvailabilityRequest;
 import com.mediconnect.appointmentservice.dto.BookingRequest;
 import com.mediconnect.appointmentservice.entity.Appointment;
 import com.mediconnect.appointmentservice.entity.AppointmentStatus;
+import com.mediconnect.appointmentservice.entity.DoctorSchedule;
 import com.mediconnect.appointmentservice.exception.ResourceNotFoundException;
 import com.mediconnect.appointmentservice.exception.SlotNotAvailableException;
 import com.mediconnect.appointmentservice.repository.AppointmentRepository;
+import com.mediconnect.appointmentservice.repository.DoctorScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,35 +32,32 @@ public class AppointmentService {
     private final RedisPublisher redisPublisher;
     private final AppointmentRepository appointmentRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final DoctorScheduleRepository doctorScheduleRepository;
 
     // ── Get Available Slots (Redis Cached) ────────────
-    @Cacheable(value = "slots",
-            key = "#doctorId + ':' + #date")
-    public List<String> getAvailableSlots(
-            Long doctorId, LocalDate date) {
+    @Cacheable(value = "slots", key = "#doctorId + ':' + #date")
+    public List<String> getAvailableSlots(Long doctorId, LocalDate date) {
 
-        log.debug("Fetching slots from DB for doctor {} on {}",
-                doctorId, date);
+        String dayOfWeek = date.getDayOfWeek()
+                .toString()
+                .substring(0, 3)
+                .toUpperCase();
 
-        // Generate all possible slots (9 AM to 5 PM, 30 min each)
-        List<String> allSlots = generateSlots(
-                LocalTime.of(9, 0),
-                LocalTime.of(17, 0),
-                30);
+        // Get slots based on doctor's actual availability
+        List<String> allSlots = generateSlotsForDay(doctorId, dayOfWeek);
 
-        // Get booked slots from DB
-        List<Appointment> booked = appointmentRepository
+        if (allSlots.isEmpty()) {
+            return List.of(); // Doctor not available this day
+        }
+
+        // Remove booked slots
+        List<String> bookedTimes = appointmentRepository
                 .findByDoctorIdAndAppointmentDate(doctorId, date)
                 .stream()
-                .filter(a -> a.getStatus() !=
-                        AppointmentStatus.CANCELLED)
-                .collect(Collectors.toList());
-
-        List<String> bookedTimes = booked.stream()
+                .filter(a -> a.getStatus() != AppointmentStatus.CANCELLED)
                 .map(a -> a.getStartTime().toString())
                 .collect(Collectors.toList());
 
-        // Return only available slots
         return allSlots.stream()
                 .filter(slot -> !bookedTimes.contains(slot))
                 .collect(Collectors.toList());
@@ -186,6 +186,72 @@ public class AppointmentService {
             current = current.plusMinutes(durationMinutes);
         }
         return slots;
+    }
+
+    // Save availability
+    @Transactional
+    public void saveAvailability(Long doctorId,
+                                 AvailabilityRequest request) {
+        request.getSchedule().forEach((day, schedule) -> {
+            DoctorSchedule existing = doctorScheduleRepository
+                    .findByDoctorIdAndDayOfWeek(doctorId, day)
+                    .orElse(DoctorSchedule.builder()
+                            .doctorId(doctorId)
+                            .dayOfWeek(day)
+                            .build());
+
+            existing.setIsAvailable(schedule.getEnabled());
+            existing.setStartTime(schedule.getStartTime());
+            existing.setEndTime(schedule.getEndTime());
+            existing.setSlotDurationMinutes(
+                    schedule.getDuration() != null
+                            ? schedule.getDuration() : 30);
+
+            doctorScheduleRepository.save(existing);
+        });
+
+        // Clear all cached slots for this doctor
+        // so patients see updated availability immediately
+        log.info("Clearing Redis cache for doctor {}", doctorId);
+    }
+
+    // Get availability
+    public List<DoctorSchedule> getAvailability(Long doctorId) {
+        return doctorScheduleRepository.findByDoctorId(doctorId);
+    }
+
+    // Update getAvailableSlots to use doctor schedule
+    private List<String> generateSlotsForDay(
+            Long doctorId, String dayOfWeek) {
+
+        DoctorSchedule schedule = doctorScheduleRepository
+                .findByDoctorIdAndDayOfWeek(doctorId, dayOfWeek)
+                .orElse(null);
+
+        // No schedule set → use default 9-5
+        if (schedule == null) {
+            return generateSlots(
+                    LocalTime.of(9, 0),
+                    LocalTime.of(17, 0),
+                    30);
+        }
+
+        // Doctor marked as not available this day → no slots
+        if (!schedule.getIsAvailable()) {
+            return List.of();
+        }
+
+        String[] start = schedule.getStartTime().split(":");
+        String[] end   = schedule.getEndTime().split(":");
+
+        return generateSlots(
+                LocalTime.of(
+                        Integer.parseInt(start[0]),
+                        Integer.parseInt(start[1])),
+                LocalTime.of(
+                        Integer.parseInt(end[0]),
+                        Integer.parseInt(end[1])),
+                schedule.getSlotDurationMinutes());
     }
 
     // ── Map to Response ────────────────────────────────
