@@ -188,7 +188,7 @@ jobs:
 
       - name: Build service-registry
         run: |
-          cd service-registry
+          cd service-registry/service-registry
           mvn clean package -DskipTests --no-transfer-progress
 
   # ── Job 7: Build API Gateway ───────────────────────
