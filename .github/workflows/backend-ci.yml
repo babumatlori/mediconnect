@@ -1,0 +1,42 @@
+name: PR Quality Check
+
+# Only runs on Pull Requests
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+
+  pr-validation:
+    name: Validate PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history for better analysis
+          fetch-depth: 0
+
+      # Check PR has proper title format
+      - name: Check PR title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $PR_TITLE"
+
+          # Check if title starts with feat:, fix:, chore:, etc.
+          if echo "$PR_TITLE" | grep -qE "^(feat|fix|chore|refactor|style|docs|test):"; then
+            echo "✅ PR title follows conventional commits format"
+          else
+            echo "⚠️ PR title should follow format: feat: description"
+            echo "Accepted prefixes: feat, fix, chore, refactor, style, docs, test"
+          fi
+
+      # Show what files changed
+      - name: Show changed files
+        run: |
+          echo "📝 Files changed in this PR:"
+          git diff --name-only origin/${{ github.base_ref }}...HEAD
+
+      - name: PR check complete
+        run: echo "✅ PR validation complete"
