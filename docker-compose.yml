@@ -1,33 +1,223 @@
 version: '3.8'
 
+# ── MediConnect — Full Stack Docker Compose ────────
+# Runs the entire platform with one command:
+# docker-compose up --build
+#
+# Services:
+#   Infrastructure: MySQL, Redis
+#   Backend:        7 Spring Boot microservices
+#   Frontend:       React (Nginx)
+#
+# Ports exposed:
+#   8761 → Eureka Dashboard
+#   8080 → API Gateway (main entry point)
+#   5173 → Frontend
+
 services:
 
+  # ── INFRASTRUCTURE ─────────────────────────────────
+
+  # MySQL Database
   mysql:
     image: mysql:8.0
     container_name: mediconnect-mysql
-    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: mediconnect123
-      MYSQL_DATABASE: mediconnect
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-MediConnect@123}
+      MYSQL_USER: mediconnect
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-MediConnect@123}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      # Auto-create all databases on first run
+      - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mediconnect-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
       interval: 10s
-      retries: 5
 
+  # Redis Cache + Pub/Sub
   redis:
     image: redis:7-alpine
     container_name: mediconnect-redis
-    restart: unless-stopped
     ports:
       - "6379:6379"
-    command: redis-server --appendonly yes
-    volumes:
-      - redis_data:/data
+    networks:
+      - mediconnect-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 5s
+      retries: 5
+      interval: 5s
 
+  # ── BACKEND SERVICES ───────────────────────────────
+
+  # Service Registry (Eureka)
+  service-registry:
+    build:
+      context: ./service-registry/service-registry
+      dockerfile: Dockerfile
+    container_name: mediconnect-service-registry
+    ports:
+      - "8761:8761"
+    networks:
+      - mediconnect-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      timeout: 10s
+      retries: 10
+      interval: 15s
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: mediconnect-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      service-registry:
+        condition: service_healthy
+    networks:
+      - mediconnect-network
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: mediconnect-auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/auth_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-MediConnect@123}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-placeholder}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+    networks:
+      - mediconnect-network
+
+  # User Service
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: mediconnect-user-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/user_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-MediConnect@123}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+    networks:
+      - mediconnect-network
+
+  # Appointment Service
+  appointment-service:
+    build:
+      context: ./appointment-service
+      dockerfile: Dockerfile
+    container_name: mediconnect-appointment-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/appointment_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-MediConnect@123}
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+    networks:
+      - mediconnect-network
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: mediconnect-notification-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/notification_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-MediConnect@123}
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+    networks:
+      - mediconnect-network
+
+  # AI Service
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: mediconnect-ai-service
+    ports:
+      - "8085:8085"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      service-registry:
+        condition: service_healthy
+    networks:
+      - mediconnect-network
+
+  # ── FRONTEND ───────────────────────────────────────
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mediconnect-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - mediconnect-network
+
+# ── VOLUMES ────────────────────────────────────────
 volumes:
   mysql_data:
-  redis_data:
+    driver: local
+
+# ── NETWORKS ───────────────────────────────────────
+networks:
+  mediconnect-network:
+    driver: bridge
