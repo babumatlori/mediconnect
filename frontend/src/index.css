@@ -1,0 +1,240 @@
+/* Import Google Fonts — Inter for UI, JetBrains Mono for code */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* Tailwind's three layers */
+@tailwind base;       /* resets browser defaults */
+@tailwind components; /* our custom reusable classes */
+@tailwind utilities;  /* Tailwind utility classes */
+
+/*
+  @layer base:
+  Sets up global defaults — font, colors, headings, links.
+  These apply to ALL elements without needing class names.
+*/
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    /* Uses our custom Inter font */
+    @apply font-sans text-secondary-900 bg-secondary-50;
+    /* Smooth font rendering on Mac/Windows */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Typography scale — consistent across all pages */
+  h1 { @apply text-4xl font-bold tracking-tight; }
+  h2 { @apply text-3xl font-bold; }
+  h3 { @apply text-2xl font-semibold; }
+  h4 { @apply text-xl font-semibold; }
+  h5 { @apply text-lg font-medium; }
+  h6 { @apply text-base font-medium; }
+
+  /* All links use primary blue */
+  a {
+    @apply text-primary-600 hover:text-primary-700
+           transition-colors duration-150;
+  }
+
+  /* Custom scrollbar — subtle and clean */
+  ::-webkit-scrollbar       { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { @apply bg-secondary-100; }
+  ::-webkit-scrollbar-thumb { @apply bg-secondary-300 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-secondary-400; }
+}
+
+/*
+  @layer components:
+  Reusable class groups. These are our design system primitives.
+  Used throughout the app via className="btn-primary" etc.
+  WHY: Avoids repeating long Tailwind strings everywhere.
+*/
+@layer components {
+
+  /* ── BUTTONS ──────────────────────────────────────
+     Base styles shared by all buttons.
+     Variants extend the base with color-specific styles.
+  */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2
+           px-4 py-2.5 rounded-md font-medium text-sm
+           transition-all duration-150 cursor-pointer
+           select-none
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  /* Blue — primary actions like "Book", "Submit", "Save" */
+  .btn-primary {
+    @apply btn bg-primary-600 text-white
+           hover:bg-primary-700
+           active:scale-95
+           focus:ring-primary-500;
+  }
+
+  /* White with border — secondary actions like "Cancel", "Back" */
+  .btn-secondary {
+    @apply btn bg-white text-secondary-700
+           border border-secondary-200
+           hover:bg-secondary-50
+           active:scale-95
+           focus:ring-secondary-400;
+  }
+
+  /* Red — destructive actions like "Delete", "Cancel Appointment" */
+  .btn-danger {
+    @apply btn bg-danger-500 text-white
+           hover:bg-danger-600
+           active:scale-95
+           focus:ring-danger-400;
+  }
+
+  /* Transparent — tertiary actions like "View All", "Skip" */
+  .btn-ghost {
+    @apply btn bg-transparent text-secondary-600
+           hover:bg-secondary-100
+           active:scale-95;
+  }
+
+  /* Purple — AI features like "Analyze", "Summarize" */
+  .btn-ai {
+    @apply btn bg-ai-600 text-white
+           hover:bg-ai-700
+           active:scale-95
+           focus:ring-ai-500;
+  }
+
+  /* Size modifiers */
+  .btn-sm { @apply px-3 py-1.5 text-xs; }
+  .btn-lg { @apply px-6 py-3 text-base; }
+
+  /* ── CARDS ────────────────────────────────────────
+     Content containers. Used for doctor cards,
+     appointment cards, dashboard stats etc.
+  */
+  .card {
+    @apply bg-white rounded-lg border border-secondary-200
+           shadow-xs p-6;
+  }
+
+  /* Card with hover effect — for clickable cards */
+  .card-hover {
+    @apply card transition-all duration-200
+           hover:shadow-md hover:-translate-y-0.5
+           cursor-pointer;
+  }
+
+  /* ── INPUTS ───────────────────────────────────────
+     All form inputs share this base style.
+     Consistent across login, register, booking forms.
+  */
+  .input {
+    @apply w-full px-3.5 py-2.5 rounded-md
+           bg-secondary-50 border border-secondary-200
+           text-sm text-secondary-900
+           placeholder:text-secondary-400
+           transition-all duration-150
+           focus:outline-none
+           focus:border-primary-500
+           focus:ring-2 focus:ring-primary-500/20
+           focus:bg-white;
+  }
+
+  /* Error state — shown when validation fails */
+  .input-error {
+    @apply border-danger-500
+           focus:border-danger-500
+           focus:ring-danger-500/20;
+  }
+
+  /* Form label above each input */
+  .label {
+    @apply block text-sm font-medium text-secondary-700 mb-1.5;
+  }
+
+  /* Error message below each input */
+  .error-text {
+    @apply text-xs text-danger-600 mt-1 flex items-center gap-1;
+  }
+
+  /* ── BADGES ───────────────────────────────────────
+     Status indicators. Used for appointment status,
+     urgency levels, doctor availability etc.
+  */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5
+           rounded-full text-xs font-semibold;
+  }
+
+  .badge-success   { @apply badge bg-success-100 text-success-700; }
+  .badge-warning   { @apply badge bg-warning-100 text-warning-700; }
+  .badge-danger    { @apply badge bg-danger-100 text-danger-700; }
+  .badge-primary   { @apply badge bg-primary-100 text-primary-700; }
+  .badge-secondary { @apply badge bg-secondary-100 text-secondary-600; }
+  .badge-ai        { @apply badge bg-ai-100 text-ai-700; }
+
+  /* ── SKELETON LOADING ─────────────────────────────
+     Pulse animation placeholder while data loads.
+     Shows users something is happening.
+  */
+  .skeleton {
+    @apply bg-secondary-200 rounded animate-pulse;
+  }
+
+  /* ── PAGE TITLES ──────────────────────────────────
+     Consistent page heading style across all dashboards.
+  */
+  .page-title {
+    @apply text-2xl font-bold text-secondary-900;
+  }
+
+  .page-subtitle {
+    @apply text-sm text-secondary-500 mt-1;
+  }
+
+  .section-title {
+    @apply text-lg font-semibold text-secondary-800 mb-4;
+  }
+
+  /* ── DIVIDER ──────────────────────────────────────*/
+  .divider {
+    @apply border-t border-secondary-200 my-4;
+  }
+}
+
+/*
+  @layer utilities:
+  One-off utility classes that Tailwind doesn't provide.
+*/
+@layer utilities {
+
+  /* Text gradient — used in landing page hero */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-600 to-ai-600
+           bg-clip-text text-transparent;
+  }
+
+  /* Glass morphism effect — subtle transparency */
+  .glass {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+  /* Hide scrollbar but keep scrolling */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

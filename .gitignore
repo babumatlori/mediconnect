@@ -6,10 +6,11 @@ target/
 
 # Environment variables - NEVER commit passwords
 .env
+.env.*
 *.env
 
 # Intellij
-.idea
+.ideagit 
 *.iml
 
 # VS Code
@@ -18,7 +19,7 @@ target/
 # Mac
 .DS_Store
 
-# Node (React frontend)
+#Node (React frontend)
 node_modules/
 dist/
 build/

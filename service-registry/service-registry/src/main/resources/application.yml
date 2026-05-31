@@ -1,0 +1,27 @@
+#eureka runs on this port
+server:
+  port: 8761
+
+spring:
+  application:
+    name: service-registry
+
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+  client:
+#    this server dosent register with itself
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+    server:
+      wait-time-in-ms-when-sync-empty: 0
+#      for local dev, avouds confusing warings
+      enable-self-preservation: false
+
+logging:
+  level:
+    com.netflix.eureka: WARN
+    com.netflix.discovery: WARN
