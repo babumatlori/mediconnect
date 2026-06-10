@@ -142,9 +142,9 @@ jobs:
           cache: maven
       - name: Build service-registry
         run: |
-          cd service-registry
+          cd service-registry/service-registry
           mvn clean package -DskipTests --no-transfer-progress \
-            --settings ../.github/maven-settings.xml
+            --settings ../../.github/maven-settings.xml
 
   api-gateway:
     name: API Gateway — Build
