@@ -11,11 +11,14 @@ on:
       - 'appointment-service/**'
       - 'notification-service/**'
       - 'ai-service/**'
+      - '.github/workflows/**'
+      - '.github/maven-settings.xml
   pull_request:
     branches: [ main, develop ]
     paths:
       - '**/*.java'
       - '**/pom.xml'
+      - '.github/workflows/**'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

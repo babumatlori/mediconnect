@@ -5,10 +5,13 @@ on:
     branches: [ main, develop, 'feature/**' ]
     paths:
       - 'frontend/**'
+      - '.github/workflows/**'
+      - '.github/maven-settings.xml
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'frontend/**'
+      - '.github/workflows/**'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
