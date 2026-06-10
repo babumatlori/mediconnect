@@ -6,6 +6,12 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-green)
 ![React](https://img.shields.io/badge/React-18-blue)
 
+## 🎥 Demo Video
+
+[![MediConnect Demo](https://img.youtube.com/vi/Wavg-p3IE_A/maxresdefault.jpg)](https://youtu.be/Wavg-p3IE_A)
+
+> Click the thumbnail to watch the full demo
+
 A production-grade Healthcare SaaS platform built with microservices architecture. Features AI-powered symptom checking, real-time notifications, and intelligent appointment booking.
 
 ---
@@ -15,7 +21,7 @@ A production-grade Healthcare SaaS platform built with microservices architectur
 ```
                     ┌─────────────────┐
                     │   React Frontend │
-                    │  (Vite + Tailwind│
+                    │ (Vite + Tailwind)│
                     └────────┬────────┘
                              │
                     ┌────────▼────────┐
