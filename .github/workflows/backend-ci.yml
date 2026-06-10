@@ -12,7 +12,7 @@ on:
       - 'notification-service/**'
       - 'ai-service/**'
       - '.github/workflows/**'
-      - '.github/maven-settings.xml
+      - '.github/maven-settings.xml'
   pull_request:
     branches: [ main, develop ]
     paths:
