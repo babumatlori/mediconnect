@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: ${AUTH_SERVICE_URL:lb://AUTH-SERVICE}
+          predicates:
+            - Path=/api/auth/**
+
+        - id: user-service
+          uri: ${USER_SERVICE_URL:lb://USER-SERVICE}
+          predicates:
+            - Path=/api/users/**
+
+        - id: appointment-service
+          uri: ${APPOINTMENT_SERVICE_URL:lb://APPOINTMENT-SERVICE}
+          predicates:
+            - Path=/api/appointments/**
+
+        - id: notification-service
+          uri: ${NOTIFICATION_SERVICE_URL:lb://NOTIFICATION-SERVICE}
+          predicates:
+            - Path=/api/notifications/**
+
+        - id: ai-service
+          uri: ${AI_SERVICE_URL:lb://AI-SERVICE}
+          predicates:
+            - Path=/api/ai/**
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"
+              - "https://mediconnect-blush-three.vercel.app"
+              - "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: false
+
+eureka:
+  client:
+    enabled: ${EUREKA_ENABLED:true}
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
