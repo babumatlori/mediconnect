@@ -6,9 +6,18 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-green)
 ![React](https://img.shields.io/badge/React-18-blue)
 
-## 🎥 Demo Video
+## 🌐 Live Demo
 
-[![MediConnect Demo](https://img.youtube.com/vi/Wavg-p3IE_A/maxresdefault.jpg)](https://youtu.be/Wavg-p3IE_A)
+| | Link |
+|---|---|
+| 🎥 Demo Video | [Watch on YouTube](https://youtu.be/Wavg-p3IE_A) |
+| 🌐 Frontend | [mediconnect-blush-three.vercel.app](https://mediconnect-blush-three.vercel.app) |
+| 🔌 API Gateway | [your-gateway-url.up.railway.app] |
+
+> **Note:** Live deployment includes Auth Service, User Service,
+> and API Gateway. Full system with AI features, Redis caching,
+> and WebSocket notifications runs via Docker Compose locally
+> — demonstrated in the demo video above.
 
 > Click the thumbnail to watch the full demo
 
